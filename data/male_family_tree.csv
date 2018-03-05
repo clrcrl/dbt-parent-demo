@@ -1,0 +1,23 @@
+id,name,parent_id,house,patronus
+1,Frank Longbottom,,Gryffindor,
+2,Neville Longbottom,1,Gryffindor,
+3,Arthur Weasley,,Gryffindor,Weasel
+4,Bill Weasley,3,Gryffindor,
+5,Charlie Weasley,3,Gryffindor,
+6,Percy Weasley,3,Gryffindor,
+7,Fred Weasley,3,Gryffindor,
+8,George Weasley,3,Gryffindor,
+9,Ronald Weasley,3,Gryffindor,Jack Russell
+10,Hugo Weasley,9,Gryffindor,
+11,James Potter,,Gryffindor,Stag
+12,Harry Potter,11,Gryffindor,Stag
+13,James Potter Junior,12,Gryffindor,
+14,Albus Potter,12,Gryffindor,
+15,Vernon Dursley,,,
+16,Dudley Dursley,15,,
+17,Lucius Malfoy,,Slytherin,
+18,Draco Malfoy,,Slytherin,
+19,Scorpius Malfoy,18,Slytherin,
+20,Remus Lupin,,Gryffindor,Wolf
+21,Ted Lupin,20,Gryffindor,
+22,Severus Snape,,Slytherin,Doe

@@ -1,0 +1,15 @@
+company_id,parent_company_id,name
+1,,Hooli
+2,1,HooliPhones
+3,1,HooliChat
+4,3,HooliMessage
+5,4,HooliMoticons
+6,5,HooliDooli
+7,6,HooliCall
+8,,Bachmanity
+9,8,Not Hotdog
+10,8,Pied Piper
+11,,Raviga
+12,11,Slack
+13,12,Atlassian
+14,,Aviato
