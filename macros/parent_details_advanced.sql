@@ -39,22 +39,12 @@ create table "analytics_claire"."companies_modelled__single_level" as (
     FROM {{table}}
   )
   , level_{{i-1}} AS (
-    -- QUESTION: which query is better?
     SELECT
     *
     FROM "analytics_claire"."companies_modelled__dbt_tmp"
-    WHERE level = (SELECT MAX(level) FROM "analytics_claire"."companies_modelled__dbt_tmp" )
-    
-    /* 
-    SELECT
-      *
-    FROM (
-      SELECT *, RANK() OVER (ORDER BY LEVEL DESC)
-      FROM "analytics_claire"."companies_modelled__dbt_tmp"
-    )
-    WHERE rank = 1
-    */
+    WHERE level = {{i-0}}
   )
+  
   SELECT
     {{i}} AS level
     , entities."{{entity_id_column_name}}"
