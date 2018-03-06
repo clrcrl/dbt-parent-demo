@@ -1,98 +1,78 @@
+
+{# 
+1. Select all records for "top level" rows (there is no parent)
+2. Join source table to table from step 1 on 2.parent_id = 1.child_id
+3. Join source table to table from step 2 on 3.parent_id = 2.child_id
+...
+4. Stop when the resulting table does not contain any records, or max levels is reached
+5. union all tables together
+#}
+
+{% macro create_table_and_get_size(table_name, sql) %}
+
+    {# Create this table #}
+    {% call statement('level_create', fetch_result=True) %}
+
+        -- TODO : drop this here if it exists
+        create table {{ schema }}.{{ table_name }} as (
+
+            {{ sql }}
+
+        );
+
+    {% endcall %}
+
+    {# Get the size of the table created above #}
+    {% call statement('level_get_size', fetch_result=True) %}
+
+        select count(*) as size from {{ schema }}.{{ table_name }};
+
+    {% endcall %}
+
+
+    {%- set result = load_result('level_get_size') -%}
+
+    {% if result is not none %}
+        {%- set num_rows = result.data[0][0] %}
+        {{ log("NUM ROWS: " ~ num_rows, info=True) }}
+    {% else %}
+        {% set num_rows = 0 %}
+    {% endif %}
+
+    {{ return(num_rows) }}
+
+{% endmacro %}
+
+{% macro get_sql_for_level(level, entity_id_column_name, parent_id_column_name, detail_column_names) %}
+
+
+{% endmacro %}
+
 {% macro parent_details_advanced(table, entity_id_column_name, parent_id_column_name, max_levels = 10, detail_column_names = []) %}
 
--- for each level, find the relevant companies and insert them into results table
-{% for i in range(max_levels) -%}
+    {% set level0_sql %}
+      select
+          {{entity_id_column_name}} child_id
+          , {{parent_id_column_name}} parent_id
+          {%- for col in detail_column_names %}
+              , {{ col }}
+          {%- endfor %}
 
--- for the top parent (/non-children), select from underlying table, and simply create the results table from it
--- QUESTION: When I run this, it gets nested inside of another create statement. How do I get around this?
+      from {{table}}
+      where {{ parent_id_column_name }} is null
+    {% endset %}
 
-{% if loop.first %}
--- drop statement since this table might already exist
-drop table if exists "analytics_claire"."companies_modelled__dbt_tmp" ;
-create table "analytics_claire"."companies_modelled__dbt_tmp" as (
-  WITH entities AS (
-    SELECT
-    *
-    FROM {{table}}
-  )
-  SELECT
-    {{i}} AS level
-    , entities."{{entity_id_column_name}}"
-    , entities."{{parent_id_column_name}}"
-    {%- for col in detail_column_names %}
-    , entities."{{ col }}"
-    {%- endfor %}
-    , entities."{{entity_id_column_name}}" AS top_parent_{{entity_id_column_name}}
-  FROM entities
-  WHERE {{parent_id_column_name}} IS NULL
-);
+    {% set num_rows = create_table_and_get_size("level0", level0_sql) %}
 
+    {% for i in range(1, max_levels) %}
 
--- for any children, use the existing table to build a temporary table with the next level of results
-{% else %}
--- drop statement since this table might already exist
-drop table "analytics_claire"."companies_modelled__single_level" ;
-create table "analytics_claire"."companies_modelled__single_level" as (
-  WITH entities AS (
-    SELECT
-    *
-    FROM {{table}}
-  )
-  , level_{{i-1}} AS (
-    SELECT
-    *
-    FROM "analytics_claire"."companies_modelled__dbt_tmp"
-    WHERE level = {{i-0}}
-  )
-  
-  SELECT
-    {{i}} AS level
-    , entities."{{entity_id_column_name}}"
-    , entities."{{parent_id_column_name}}"
-    {%- for col in detail_column_names %}
-    , entities."{{ col }}"
-    {%- endfor %}
-    {% if loop.first %}
-    , entities."{{entity_id_column_name}}" AS top_parent_{{entity_id_column_name}}
-    {% else %}
-    , parent_entities."top_{{parent_id_column_name}}"
-    {% endif %}
-  FROM entities
-  INNER JOIN level_{{i-1}} AS parent_entities ON entities.{{parent_id_column_name}} = parent_entities.{{entity_id_column_name}}
-  
-)
+        {{ log("LOOP " ~ i ~ " NUM ROWS IS " ~ num_rows, info=True) }}
+        {% if num_rows > 0 %}
 
+            {% set sql = get_sql_for_level(i, entity_id_column_name, parent_id_column_name, detail_column_names) %}
+            {% set num_rows = create_table_and_get_size('level' ~ i, sql) %}
 
-{% endif %}
-
--- return the number of rows
-
-{%- call statement('num_rows', fetch_result=True) -%}
-
-    SELECT
-    COUNT(*)
-    FROM "analytics_claire"."companies_modelled__single_level"
-
-{%- endcall -%}
-
-{%- set num_rows = load_result('num_rows')['data'] | map(attribute=0)-%}
--- QUESTION: How do I return this as an integer instead of an array?
--- If there's no results - exit the loop
-    {% if num_rows == 0 %}
-    -- {# break #}  -- Need to import loop controls extension http://jinja.pocoo.org/docs/2.9/extensions/#loop-controls
-    -- Otherwise insert the results into the results table
-    {% else %}
-    INSERT INTO "analytics_claire"."companies_modelled__dbt_tmp" (
-      SELECT * FROM "analytics_claire"."companies_modelled__single_level"
-    )
-    
-    {% endif %}
-
-  
-)
-
-
-{% endfor %}
-
+        {% endif %}
+    {% endfor %}
 
 {% endmacro %}
