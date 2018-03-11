@@ -71,14 +71,3 @@
   {% endif %}
   {% endfor %}
 {% endmacro %}
-
-
-
-
-
-  
-  
-
-
-
-
