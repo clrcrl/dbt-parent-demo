@@ -5,8 +5,8 @@
  
     with entities as (
       select
-        {{entity_id_column_name}} as id
-        , {{parent_id_column_name}} as parent_id
+        {{entity_id_column_name}}
+        , {{parent_id_column_name}}
       from {{table}}
     )
     {% for i in range(level+1) -%}
@@ -14,18 +14,18 @@
 
         select
           {{i}} as level, 
-          entities.id,
-          entities.parent_id,
+          entities.{{entity_id_column_name}},
+          entities.{{parent_id_column_name}},
           {% if loop.first %}
-          entities.id as top_parent_id
+          entities.{{entity_id_column_name}} as top_{{parent_id_column_name}}
           {% else %}
-          parent_entities.top_parent_id
+          parent_entities.top_{{parent_id_column_name}}
           {% endif %}
         from entities
         {% if loop.first %}
-        where entities.parent_id is null
+        where entities.{{parent_id_column_name}} is null
         {% else %}
-        inner join level{{i-1}} as parent_entities on entities.parent_id = parent_entities.id
+        inner join level{{i-1}} as parent_entities on entities.{{parent_id_column_name}} = parent_entities.{{entity_id_column_name}}
         {% endif %}
     )
 
@@ -37,8 +37,8 @@
 {# This macro generates the sql for a particular by referencing existing individual tables for each level. It is only used in the "create" macro, i.e. where a table for each level is created#}
     with entities as (
       select
-        {{entity_id_column_name}} id
-        , {{parent_id_column_name}} parent_id
+        {{entity_id_column_name}}
+        , {{parent_id_column_name}}
       from {{table}}
     )
     
@@ -52,18 +52,18 @@
 
     select
       {{level}} as level, 
-      entities.id,
-      entities.parent_id,
+      entities.{{entity_id_column_name}},
+      entities.{{parent_id_column_name}},
       {% if level==0 %}
-      entities.id as top_parent_id
+      entities.{{entity_id_column_name}} as top_{{parent_id_column_name}}
       {% else %}
-      parent_entities.top_parent_id
+      parent_entities.top_{{parent_id_column_name}}
       {% endif %}
     from entities
     {% if level==0 %}
-    where entities.parent_id is null
+    where entities.{{parent_id_column_name}} is null
     {% else %}
-    inner join level{{level-1}} as parent_entities on entities.parent_id = parent_entities.id
+    inner join level{{level-1}} as parent_entities on entities.{{parent_id_column_name}} = parent_entities.{{entity_id_column_name}}
     {% endif %}
 
 {% endmacro %}
@@ -73,8 +73,8 @@
 {# This macro generates the sql for a particular by referencing a table with all previous levels in it. It is only used in the "insert" macro, i.e. where a table for each level is inserted into a main table #}
     with entities as (
       select
-        {{entity_id_column_name}} id
-        , {{parent_id_column_name}} parent_id
+        {{entity_id_column_name}}
+        , {{parent_id_column_name}}
       from {{table}}
     )
     
@@ -89,18 +89,18 @@
 
     select
       {{level}} as level, 
-      entities.id,
-      entities.parent_id,
+      entities.{{entity_id_column_name}},
+      entities.{{parent_id_column_name}},
       {% if level==0 %}
-      entities.id as top_parent_id
+      entities.{{entity_id_column_name}} as top_{{parent_id_column_name}}
       {% else %}
-      parent_entities.top_parent_id
+      parent_entities.top_{{parent_id_column_name}}
       {% endif %}
     from entities
     {% if level==0 %}
-    where entities.parent_id is null
+    where entities.{{parent_id_column_name}} is null
     {% else %}
-    inner join level{{level-1}} as parent_entities on entities.parent_id = parent_entities.id
+    inner join level{{level-1}} as parent_entities on entities.{{parent_id_column_name}} = parent_entities.{{entity_id_column_name}}
     {% endif %}
 
 {% endmacro %}
