@@ -17,7 +17,7 @@
           entities.id,
           entities.parent_id,
           {% if loop.first %}
-          entities.parent_id as top_parent_id
+          entities.id as top_parent_id
           {% else %}
           parent_entities.top_parent_id
           {% endif %}
@@ -55,7 +55,7 @@
       entities.id,
       entities.parent_id,
       {% if level==0 %}
-      entities.parent_id as top_parent_id
+      entities.id as top_parent_id
       {% else %}
       parent_entities.top_parent_id
       {% endif %}
@@ -92,7 +92,7 @@
       entities.id,
       entities.parent_id,
       {% if level==0 %}
-      entities.parent_id as top_parent_id
+      entities.id as top_parent_id
       {% else %}
       parent_entities.top_parent_id
       {% endif %}
@@ -104,5 +104,3 @@
     {% endif %}
 
 {% endmacro %}
-
-
