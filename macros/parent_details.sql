@@ -34,6 +34,6 @@ from level{{i}}
 {% if not loop.last %}
 union all
 {% endif %}
-{%- endfor %}
+{% endfor %}
 
 {%- endmacro %}
