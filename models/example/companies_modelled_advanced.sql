@@ -1,5 +1,3 @@
--- need to replace "analytics_claire" with target
--- come back and put some better examples in, such as calulating number of direct and total descendants, and rolled up revenue
 with companies as (
   select
   *
