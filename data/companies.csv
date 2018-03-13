@@ -1,15 +1,15 @@
-company_id,parent_company_id,name
-1,,Hooli
-2,1,HooliPhones
-3,1,HooliChat
-4,3,HooliMessage
-5,4,HooliMoticons
-6,5,HooliDooli
-7,6,HooliCall
-8,,Bachmanity
-9,8,Not Hotdog
-10,8,Pied Piper
-11,,Raviga
-12,11,Slack
-13,12,Atlassian
-14,,Aviato
+company_id,parent_company_id,name,revenue
+1,,Hooli,45
+2,1,HooliPhones,84
+3,1,HooliChat,32
+4,3,HooliMessage,25
+5,4,HooliMoticons,
+6,5,HooliDooli,8
+7,6,HooliCall,4
+8,,Bachmanity,0
+9,8,Not Hotdog,0
+10,8,Pied Piper,52
+11,,Raviga,25
+12,11,Slack,99
+13,12,Atlassian,45
+14,,Aviato,25
